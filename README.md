@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Agentic AI AP Employee
 
-## Getting Started
+An intelligent, AI-powered Accounts Payable (AP) automation system that leverages multiple specialized agents to streamline invoice processing, validation, matching, compliance checks, approvals, and payments.
 
-First, run the development server:
+## Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+This system replaces manual AP workflows with an agentic AI architecture that autonomously handles the entire invoice-to-payment lifecycle while maintaining compliance, audit trails, and human oversight where needed.
+
+## Architecture
+
+### High-Level System Design
+
+![High Level Architecture](public/architechture.png)
+
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Invoice Sources                                │
+│          (Manual PDF Upload | Gmail | Outlook)                              │
+└─────────────────────────────────┬───────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           Invoice Ingestion                                 │
+└─────────────────────────────────┬───────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    The Orchestrator (State Machine)                         │
+│         Manages Worker Agents | Enforces Guardrails | Maintains Audit Logs  │
+└─────────────────────────────────┬───────────────────────────────────────────┘
+                                  │
+        ┌─────────────────────────┼─────────────────────────┐
+        ▼                         ▼                         ▼
+┌───────────────┐    ┌────────────────────┐    ┌───────────────────┐
+│   Policies    │    │   Worker Agents    │    │ Tools/Integration │
+├───────────────┤    ├────────────────────┤    ├───────────────────┤
+│ • Approval    │    │ • Document Agent   │    │ • Xero            │
+│ • Compliance  │◄──►│ • Validation Agent │◄──►│ • QuickBooks      │
+│ • SLA         │    │ • Matching Agent   │    │ • Slack           │
+└───────────────┘    │ • Compliance Agent │    │ • Email APIs      │
+                     │ • Approval Agent   │    │ • Banking APIs    │
+                     │ • Payment Agent    │    └───────────────────┘
+                     │ • Communication    │
+                     └─────────┬──────────┘
+                               │
+                               ▼
+                     ┌────────────────────┐
+                     │    Memory / DB     │
+                     ├────────────────────┤
+                     │ • Relational DB    │
+                     │ • Vector DB        │
+                     └────────────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Worker Agents
 
-## Learn More
+| Agent | Responsibility |
+|-------|----------------|
+| **Invoice/Document Agent** | Extracts and parses invoice data from various formats (PDF, images, emails) |
+| **Validation Agent** | Validates invoice data, checks for duplicates, verifies vendor information |
+| **Matching Agent** | Performs 2-way/3-way matching between invoices, POs, and receipts |
+| **Compliance/Policy Agent** | Ensures invoices meet compliance requirements and internal policies |
+| **Approval Agent** | Routes invoices through appropriate approval workflows based on rules |
+| **Payment Agent** | Processes approved payments and updates payment records |
+| **Communication Agent** | Handles notifications, reminders, and stakeholder communications |
 
-To learn more about Next.js, take a look at the following resources:
+## Database Schema
+![Database Modelling](public/db-modelling.png)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Entity Descriptions
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Table | Purpose |
+|-------|---------|
+| `vendors` | Stores vendor/supplier information including contact details and payment terms |
+| `invoices` | Core invoice data with amounts, dates, and vendor references |
+| `line_items` | Individual line items within each invoice |
+| `vendor_bank_accounts` | Bank account details for vendor payments |
+| `purchase_orders` | Purchase orders for 3-way matching |
+| `receipts` | Goods receipt records for matching verification |
+| `approval_states` | Tracks approval workflow states and durations |
+| `audits` | Complete audit trail of all state changes |
 
-## Deploy on Vercel
+## Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Multi-Source Invoice Ingestion**: Accept invoices via PDF upload, QR code scanning, or email integration (Gmail)
+- **Intelligent Document Processing**: AI-powered extraction of invoice data from various formats
+- **Automated Validation**: Duplicate detection, vendor verification, and data validation
+- **Smart Matching**: 2-way and 3-way matching between invoices, POs, and receipts
+- **Policy Enforcement**: Configurable approval policies, compliance rules, and SLA tracking
+- **Approval Workflows**: Dynamic routing based on amount thresholds and business rules
+- **Payment Processing**: Integration with banking APIs for automated payments
+- **Communication Automation**: Automated notifications via email and Slack
+- **Complete Audit Trail**: Full traceability of all actions and state changes
+- **Semantic Memory**: Vector database for fraud detection and learning from exceptions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
